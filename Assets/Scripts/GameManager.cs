@@ -12,6 +12,11 @@ using UnityEngine.UI;
  */
 public class GameManager : MonoBehaviour
 {
+    // --- Rules ---
+    [Header("Rules")]
+    [SerializeField] private Rules[] rules;
+    private Rules currentRules;
+
     // --- Tilemap Data ---
     [Header("Tilemap Data")]
     [SerializeField] private Tilemap tilemap;
@@ -27,6 +32,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button randomize;
     [SerializeField] private Slider chanceSlider;
     [SerializeField] private TMP_Dropdown stamp;
+    [SerializeField] private TMP_Dropdown ruleDropdown;
 
     [Header("UI References Right Side")]
     [SerializeField] private TMP_Text generation;
@@ -36,6 +42,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TMP_Dropdown presetDropdown;
     [SerializeField] private Toggle wrap;
     [SerializeField] private Toggle wallsAlive;
+
+    [Header("Text UI")]
+    [SerializeField] private TMP_Text chanceText;
+    [SerializeField] private TMP_Text widthText;
+    [SerializeField] private TMP_Text heightText;
+    [SerializeField] private TMP_Text intervalText;
 
     // --- Camera ---
     [Header("Camera Reference")]
@@ -82,6 +94,12 @@ public class GameManager : MonoBehaviour
         height = (int)heightSlider.value;
         cam.orthographicSize = Mathf.Max(width, height) / 2;
         stampBrush = patterns[0];
+        currentRules = rules[0];
+
+        widthText.text = "Width: " + widthSlider.value.ToString();
+        heightText.text = "Height: " + heightSlider.value.ToString();
+        intervalText.text = "Interval: " + intervalSlider.value.ToString() + " s";
+        chanceText.text = "Chance: " + (chanceSlider.value * 100).ToString() + " %";
     }
 
     /* Update
@@ -226,21 +244,11 @@ public class GameManager : MonoBehaviour
         int aliveNeighbours = AliveNeighbours(x, y);
         if (grid[x, y] == 1)
         {
-            if (aliveNeighbours < 2 || aliveNeighbours > 3)
-            {
-                result = 0;
-            }
-            else
-            {
-                result = 1;
-            }
+            result = currentRules.aliveRules[aliveNeighbours];
         }
         else
         {
-            if (aliveNeighbours == 3)
-            {
-                result = 1;
-            }
+            result = result = currentRules.deadRules[aliveNeighbours];
         }
         return result;
     }
@@ -375,11 +383,19 @@ public class GameManager : MonoBehaviour
         height = (int)heightSlider.value;
         cam.orthographicSize = Mathf.Max(width, height) / 2;
         InitGridData();
+        widthText.text = "Width: " + widthSlider.value.ToString();
+        heightText.text = "Height: " + heightSlider.value.ToString();
     }
 
     public void ChangedInterval()
     {
         timerMax = intervalSlider.value;
+        intervalText.text = "Interval: " + intervalSlider.value.ToString() + " s";
+    }
+
+    public void ChangedRandomSlider()
+    {
+        chanceText.text = "Chance: " + (chanceSlider.value * 100).ToString() + " %";
     }
 
     public void ChangedStampBrush()
@@ -407,6 +423,11 @@ public class GameManager : MonoBehaviour
         SetPattern();
     }
 
+    public void ChangedRules()
+    {
+        currentRules = rules[ruleDropdown.value];
+    }
+
     private void Stamp(int x, int y, Pattern pattern)
     {
         Vector2Int patternCenter = pattern.GetCenter();
@@ -416,10 +437,10 @@ public class GameManager : MonoBehaviour
             int xCoor = x + width / 2 + pattern.cells[i].x - patternCenter.x;
             int yCoor = y + height / 2 + pattern.cells[i].y - patternCenter.y;
 
-            //if (xCoor >= grid.GetLength(0) || xCoor < 0 || yCoor >= grid.GetLength(1) || yCoor < 0)
-            //{
-            //    continue;
-            //}
+            if (xCoor >= grid.GetLength(0) || xCoor < 0 || yCoor >= grid.GetLength(1) || yCoor < 0)
+            {
+                continue;
+            }
 
             grid[xCoor, yCoor] = 1;
         }

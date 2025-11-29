@@ -11,8 +11,8 @@ using UnityEngine;
 public class Rules : ScriptableObject
 {
     // What to do based on number of alive neighbours (alive neighbours will be index in array) if currently alive
-    [SerializeField] private int[] aliveRules = new int[9];
+    [SerializeField] public int[] aliveRules = new int[9];
 
     // What to do based on number of alive neighbours (alive neighbours will be index in array) if currently dead
-    [SerializeField] private int[] deadRules = new int[9]; 
+    [SerializeField] public int[] deadRules = new int[9]; 
 }
