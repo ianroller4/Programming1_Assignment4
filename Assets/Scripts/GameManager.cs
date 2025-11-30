@@ -19,9 +19,10 @@ public class GameManager : MonoBehaviour
 
     // --- Tilemap Data ---
     [Header("Tilemap Data")]
-    [SerializeField] private Tilemap tilemap;
-    [SerializeField] private Tile ALIVE;
-    [SerializeField] private Tile DEAD;
+    [SerializeField] private Tilemap ground;
+    [SerializeField] private Tilemap water;
+    [SerializeField] private RuleTile ALIVE;
+    [SerializeField] private RuleTile DEAD;
 
     // --- UI References ---
     [Header("UI References Left Side")]
@@ -33,6 +34,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Slider chanceSlider;
     [SerializeField] private TMP_Dropdown stamp;
     [SerializeField] private TMP_Dropdown ruleDropdown;
+    [SerializeField] private Toggle updateAlive;
+    [SerializeField] private Toggle updateDead;
 
     [Header("UI References Right Side")]
     [SerializeField] private TMP_Text generation;
@@ -100,6 +103,9 @@ public class GameManager : MonoBehaviour
         heightText.text = "Height: " + heightSlider.value.ToString();
         intervalText.text = "Interval: " + intervalSlider.value.ToString() + " s";
         chanceText.text = "Chance: " + (chanceSlider.value * 100).ToString() + " %";
+
+        pause.GetComponent<Image>().color = Color.red;
+        start.GetComponent<Image>().color = Color.white;
     }
 
     /* Update
@@ -212,11 +218,11 @@ public class GameManager : MonoBehaviour
             {
                 if (grid[i, j] == 1)
                 {
-                    tilemap.SetTile(new Vector3Int(i - center.x, j - center.y, 0), ALIVE);
+                    ground.SetTile(new Vector3Int(i - center.x, j - center.y, 0), ALIVE);
                 }
                 else
                 {
-                    tilemap.SetTile(new Vector3Int(i - center.x, j - center.y, 0), DEAD);
+                    water.SetTile(new Vector3Int(i - center.x, j - center.y, 0), DEAD);
                 }
             }
         }
@@ -224,7 +230,8 @@ public class GameManager : MonoBehaviour
 
     private void ClearTiles()
     {
-        tilemap.ClearAllTiles();
+        ground.ClearAllTiles();
+        water.ClearAllTiles();
     }
 
     private void GetNextGrid()
@@ -244,11 +251,17 @@ public class GameManager : MonoBehaviour
         int aliveNeighbours = AliveNeighbours(x, y);
         if (grid[x, y] == 1)
         {
-            result = currentRules.aliveRules[aliveNeighbours];
+            if (updateAlive.isOn)
+            {
+                result = currentRules.aliveRules[aliveNeighbours];
+            }
         }
         else
         {
-            result = result = currentRules.deadRules[aliveNeighbours];
+            if (updateDead.isOn)
+            {
+                result = result = currentRules.deadRules[aliveNeighbours];
+            }
         }
         return result;
     }
@@ -328,11 +341,15 @@ public class GameManager : MonoBehaviour
     public void Pause()
     {
         running = false;
+        pause.GetComponent<Image>().color = Color.red;
+        start.GetComponent<Image>().color = Color.white;
     }
 
     public void Run()
     {
         running = true;
+        pause.GetComponent<Image>().color = Color.white;
+        start.GetComponent<Image>().color = Color.green;
     }
 
     public void Next()
