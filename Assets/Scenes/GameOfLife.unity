@@ -8567,7 +8567,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1113697576}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: Reset
+        m_MethodName: ResetSim
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
