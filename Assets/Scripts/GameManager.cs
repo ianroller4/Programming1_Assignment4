@@ -7,22 +7,22 @@ using UnityEngine.UI;
 
 /* GameManager
  * 
- * Manages the game of life.
+ * Manages the game of life, including operations and UI.
  * 
  */
 public class GameManager : MonoBehaviour
 {
     // --- Rules ---
     [Header("Rules")]
-    [SerializeField] private Rules[] rules;
-    private Rules currentRules;
+    [SerializeField] private Rules[] rules; // Array of rules players can choose to run
+    private Rules currentRules; // The current rule
 
     // --- Tilemap Data ---
     [Header("Tilemap Data")]
-    [SerializeField] private Tilemap ground;
-    [SerializeField] private Tilemap water;
-    [SerializeField] private RuleTile ALIVE;
-    [SerializeField] private RuleTile DEAD;
+    [SerializeField] private Tilemap ground; // Tile map for alive tiles
+    [SerializeField] private Tilemap water; // Tile map for dead tiles
+    [SerializeField] private RuleTile ALIVE; // Alive rule tiles
+    [SerializeField] private RuleTile DEAD; // Dead rule tiles
 
     // --- UI References ---
     [Header("UI References Left Side")]
@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TMP_Dropdown presetDropdown;
     [SerializeField] private Toggle wrap;
     [SerializeField] private Toggle wallsAlive;
+    [SerializeField] private Toggle runSequence;
 
     [Header("Text UI")]
     [SerializeField] private TMP_Text chanceText;
@@ -76,6 +77,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Pattern[] patterns;
     private Pattern preset;
     private Pattern stampBrush;
+
+    // --- Rule Sequence ---
+    [Header("Rule Sequence")]
+    [SerializeField] private RuleSequence ruleSequence;
+    private int ruleSquenceIndex = 0;
+    private int currentRuleGenerations = 0;
 
     // --- Testing Variables ---
     [Header("Testing")]
@@ -121,13 +128,23 @@ public class GameManager : MonoBehaviour
     {
         if (!DEBUG_MODE)
         {
-            if (running)
+            if (!runSequence.isOn)
             {
-                UpdateIntervalTimer();
+                if (running)
+                {
+                    UpdateIntervalTimer();
+                }
+                else
+                {
+                    ListenForInput();
+                }
             }
             else
             {
-                ListenForInput();
+                if (running)
+                {
+                    UpdateIntervalTimer();
+                }
             }
         }
     }
@@ -159,7 +176,15 @@ public class GameManager : MonoBehaviour
             }
 
             // Update grid
-            UpdateState();
+            if (!runSequence.isOn)
+            {
+                UpdateState();
+            }
+            else
+            {
+                RunSequence();
+            }
+
         }
     }
 
@@ -473,6 +498,39 @@ public class GameManager : MonoBehaviour
             int yCoor = y + pattern.cells[i].y - patternCenter.y;
 
             grid[xCoor, yCoor] = 1;
+        }
+    }
+
+    public void SequenceUpdate()
+    {
+        if (runSequence.isOn)
+        {
+            Reset();
+            chanceSlider.value = ruleSequence.aliveChance;
+            Randomize();
+            currentRules = ruleSequence.steps[ruleSquenceIndex].rule;
+            currentRuleGenerations = ruleSequence.steps[ruleSquenceIndex].generations;
+        }
+    }
+
+    private void RunSequence()
+    {
+        UpdateState();
+        currentRuleGenerations--;
+        if (currentRuleGenerations <= 0)
+        {
+            ruleSquenceIndex++;
+            if (ruleSquenceIndex < ruleSequence.steps.Count)
+            {
+                currentRules = ruleSequence.steps[ruleSquenceIndex].rule;
+                currentRuleGenerations = ruleSequence.steps[ruleSquenceIndex].generations;
+            }
+            else
+            {
+                Pause();
+                runSequence.isOn = false;
+                ChangedRules();
+            }
         }
     }
 }

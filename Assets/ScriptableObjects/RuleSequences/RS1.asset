@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f7331cfef5abf442bb2f8bf6888e850, type: 3}
+  m_Name: RS1
+  m_EditorClassIdentifier: 
+  aliveChance: 0.3
+  steps:
+  - rule: {fileID: 11400000, guid: 62fa3c17b3ad61a4e8655e66cf7e22a9, type: 2}
+    generations: 3
+  - rule: {fileID: 11400000, guid: ff2d086bcb3de734ebf657dc0026dc99, type: 2}
+    generations: 1
+  - rule: {fileID: 11400000, guid: 19086fc0dfdd1c742bd799746886bb46, type: 2}
+    generations: 2
+  - rule: {fileID: 11400000, guid: e9c13debfe99c5240b636947bc6cf0c4, type: 2}
+    generations: 1
