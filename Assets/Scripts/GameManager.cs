@@ -856,6 +856,7 @@ public class GameManager : MonoBehaviour
 
                 // Revert rule back to whatever dropdown menu selected is
                 ChangedRules();
+                ruleSquenceIndex = 0;
             }
         }
     }
